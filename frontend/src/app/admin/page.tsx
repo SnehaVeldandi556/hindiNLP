@@ -98,13 +98,6 @@ export default function AdminDashboardPage() {
             <ListOrdered className="w-3.5 h-3.5" />
             <span>शिकायत प्रबंधन (Registry)</span>
           </Link>
-          <Link
-            href="/admin/models"
-            className="px-3.5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold shadow-sm transition-colors flex items-center gap-1.5"
-          >
-            <BrainCircuit className="w-3.5 h-3.5" />
-            <span>ML मॉडल विश्लेषण</span>
-          </Link>
         </div>
       </div>
 

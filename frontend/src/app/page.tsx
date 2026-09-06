@@ -89,13 +89,6 @@ export default function LandingPage() {
             <Building2 className="w-4 h-4 text-slate-500" />
             <span>प्रशासनिक डैशबोर्ड (Admin Portal)</span>
           </Link>
-          <Link
-            href="/admin/models"
-            className="px-6 py-3.5 rounded-xl bg-sky-50 hover:bg-sky-100 text-sky-800 font-semibold border border-sky-200 transition-all flex items-center gap-2"
-          >
-            <Brain className="w-4 h-4 text-sky-600" />
-            <span>ML मॉडल प्रदर्शन (Models)</span>
-          </Link>
         </div>
       </section>
 

@@ -42,7 +42,6 @@ export const Navbar: React.FC = () => {
       ? [
           { name: 'प्रशासन (Admin Hub)', href: '/admin', icon: ShieldCheck },
           { name: 'शिकायत प्रबंधन (Complaints)', href: '/admin/complaints', icon: ListOrdered },
-          { name: 'ML मॉडल (ML Models)', href: '/admin/models', icon: BrainCircuit },
         ]
       : []),
   ];
@@ -119,15 +118,10 @@ export const Navbar: React.FC = () => {
               <div className="flex items-center space-x-2">
                 <Link
                   href="/login"
-                  className="px-4 py-2 text-sm font-medium text-slate-700 hover:text-slate-900 hover:bg-slate-100 rounded-lg transition-colors"
+                  className="px-4 py-2 text-xs font-semibold text-white bg-slate-900 hover:bg-slate-800 rounded-xl shadow-sm transition-colors flex items-center gap-1.5"
                 >
-                  लॉग इन (Login)
-                </Link>
-                <Link
-                  href="/register"
-                  className="px-4 py-2 text-sm font-medium text-white bg-emerald-600 hover:bg-emerald-700 rounded-lg shadow-sm transition-colors"
-                >
-                  पंजीकरण (Register)
+                  <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" />
+                  <span>प्रशासन लॉग इन (Admin Login)</span>
                 </Link>
               </div>
             )}
