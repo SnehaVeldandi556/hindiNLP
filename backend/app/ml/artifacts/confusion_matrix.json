@@ -1,0 +1,116 @@
+{
+  "best_model": "Logistic Regression",
+  "categories": [
+    "Drainage",
+    "Electricity",
+    "Garbage Collection",
+    "Public Transport",
+    "Roads",
+    "Sewage",
+    "Street Lights",
+    "Water Supply"
+  ],
+  "matrix": [
+    [
+      50,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    [
+      0,
+      50,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    [
+      0,
+      0,
+      50,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    [
+      0,
+      0,
+      0,
+      50,
+      0,
+      0,
+      0,
+      0
+    ],
+    [
+      0,
+      0,
+      0,
+      0,
+      50,
+      0,
+      0,
+      0
+    ],
+    [
+      0,
+      0,
+      0,
+      0,
+      0,
+      50,
+      0,
+      0
+    ],
+    [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      50,
+      0
+    ],
+    [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      50
+    ]
+  ],
+  "total_test_samples": 400,
+  "row_labels": [
+    "Drainage",
+    "Electricity",
+    "Garbage Collection",
+    "Public Transport",
+    "Roads",
+    "Sewage",
+    "Street Lights",
+    "Water Supply"
+  ],
+  "col_labels": [
+    "Drainage",
+    "Electricity",
+    "Garbage Collection",
+    "Public Transport",
+    "Roads",
+    "Sewage",
+    "Street Lights",
+    "Water Supply"
+  ]
+}
