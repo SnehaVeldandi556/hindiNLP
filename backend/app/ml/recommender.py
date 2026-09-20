@@ -113,9 +113,11 @@ class ResolutionRecommender:
         self.tfidf_matrix = data["matrix"]
         self.corpus = data["corpus"]
 
-    def find_similar_complaints(self, text: str, top_k: int = 4) -> List[Dict[str, Any]]:
+    def find_similar_complaints(self, text: str, top_k: int = 5, category: str = None) -> List[Dict[str, Any]]:
         """
-        Calculates cosine similarity and retrieves top_k most similar historical complaints.
+        Calculates cosine similarity and retrieves top_k distinct historical complaints.
+        Prioritizes the predicted category when provided and performs multi-pass deduplication
+        so all returned complaints are distinct (unique texts, actions, and wards).
         """
         cleaned = clean_and_preprocess_text(text)
         if not cleaned:
@@ -124,15 +126,81 @@ class ResolutionRecommender:
         query_vec = self.vectorizer.transform([cleaned])
         scores = cosine_similarity(query_vec, self.tfidf_matrix).flatten()
 
-        # Get top indices
-        top_indices = np.argsort(scores)[::-1][:top_k]
+        category_indices = []
+        other_indices = []
+
+        for idx, item in enumerate(self.corpus):
+            if category and item.get("Category") == category:
+                category_indices.append(idx)
+            else:
+                other_indices.append(idx)
+
+        # Sort candidates by similarity score descending
+        sorted_cat_indices = sorted(category_indices, key=lambda i: scores[i], reverse=True)
+        sorted_other_indices = sorted(other_indices, key=lambda i: scores[i], reverse=True)
 
         results = []
-        for idx in top_indices:
-            score = float(scores[idx])
-            item = self.corpus[idx].copy()
-            item["similarity_score"] = round(score * 100, 1)  # percentage
+        seen_texts = set()
+        seen_pairs = set()  # (text, action)
+        seen_ids = set()
+
+        # Pass 1: Select distinct Complaint_Text within category
+        for idx in sorted_cat_indices:
+            if len(results) >= top_k:
+                break
+            c = self.corpus[idx]
+            txt = c["Complaint_Text"]
+            if txt not in seen_texts:
+                seen_texts.add(txt)
+                seen_pairs.add((txt, c.get("Action_Taken")))
+                seen_ids.add(c["Complaint_ID"])
+                item = c.copy()
+                item["similarity_score"] = round(float(scores[idx]) * 100, 1)
+                results.append(item)
+
+        # Pass 2: Select distinct (Complaint_Text, Action_Taken) combinations within category
+        for idx in sorted_cat_indices:
+            if len(results) >= top_k:
+                break
+            c = self.corpus[idx]
+            if c["Complaint_ID"] in seen_ids:
+                continue
+            txt = c["Complaint_Text"]
+            act = c.get("Action_Taken")
+            if (txt, act) not in seen_pairs:
+                seen_pairs.add((txt, act))
+                seen_ids.add(c["Complaint_ID"])
+                item = c.copy()
+                item["similarity_score"] = round(float(scores[idx]) * 100, 1)
+                results.append(item)
+
+        # Pass 3: Select distinct wards within category
+        for idx in sorted_cat_indices:
+            if len(results) >= top_k:
+                break
+            c = self.corpus[idx]
+            if c["Complaint_ID"] in seen_ids:
+                continue
+            seen_ids.add(c["Complaint_ID"])
+            item = c.copy()
+            item["similarity_score"] = round(float(scores[idx]) * 100, 1)
             results.append(item)
+
+        # Pass 4: Fallback across remaining historical complaints if needed
+        if len(results) < top_k:
+            for idx in sorted_other_indices:
+                if len(results) >= top_k:
+                    break
+                c = self.corpus[idx]
+                if c["Complaint_ID"] in seen_ids:
+                    continue
+                txt = c["Complaint_Text"]
+                if txt not in seen_texts:
+                    seen_texts.add(txt)
+                    seen_ids.add(c["Complaint_ID"])
+                    item = c.copy()
+                    item["similarity_score"] = round(float(scores[idx]) * 100, 1)
+                    results.append(item)
 
         return results
 
@@ -141,7 +209,7 @@ class ResolutionRecommender:
         Generates resolution recommendation based on retrieved historical resolutions.
         Strictly derived from historical dataset facts.
         """
-        similar = self.find_similar_complaints(text, top_k=5)
+        similar = self.find_similar_complaints(text, top_k=5, category=predicted_category)
 
         # Filter resolved historical complaints
         resolved_cases = [c for c in similar if c.get("Status") == "Closed" and c.get("Action_Taken") != "Pending"]

@@ -101,6 +101,7 @@ def train_and_evaluate():
         
         pipeline = Pipeline([
             ("tfidf", TfidfVectorizer(
+                token_pattern=r'(?u)[\u0900-\u097Fa-zA-Z0-9_]+',
                 ngram_range=(1, 2),
                 min_df=1,
                 sublinear_tf=True
@@ -195,7 +196,11 @@ def train_and_evaluate():
 
     # 3. Fit TF-IDF Vectorizer and Matrix for Historical Recommendation Engine
     logger.info("Building historical TF-IDF similarity index for all %d complaints...", len(df))
-    rec_vectorizer = TfidfVectorizer(ngram_range=(1, 2), sublinear_tf=True)
+    rec_vectorizer = TfidfVectorizer(
+        token_pattern=r'(?u)[\u0900-\u097Fa-zA-Z0-9_]+',
+        ngram_range=(1, 2),
+        sublinear_tf=True
+    )
     historical_tfidf_matrix = rec_vectorizer.fit_transform(df["cleaned_text"])
 
     # Store necessary fields for recommendation

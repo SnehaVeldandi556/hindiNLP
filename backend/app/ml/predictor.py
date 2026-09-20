@@ -86,17 +86,18 @@ class ComplaintPredictor:
                 modifier += 1
                 reasons.append(f"Outage duration ({hours} hours): +1")
 
-        # 2. Critical danger or emergency keywords
+        # 2. Critical danger or emergency keywords (checked across raw and normalized text)
+        combined_text = f"{raw_text} {clean_and_preprocess_text(raw_text)}"
         critical_patterns = [
             (r'(ट्रांसफार्मर खराब|शॉर्ट सर्किट|करंट|करंट आ रहा|आग|स्पार्क)', 3, "High-voltage electrical hazard"),
             (r'(गंदा पानी सड़क|सीवर ओवरफ्लो|पीने का गंदा पानी|बीमारी)', 3, "Public health and contamination risk"),
             (r'(जलभराव|बाढ़|डूबा हुआ|पानी भरा)', 2, "Severe waterlogging risk"),
-            (r'(बड़े गड्ढे|हादसा|दुर्घटना|टूट गई)', 2, "Road accident and traffic hazard"),
+            (r'(बड़े गड्ढे|गड्ढे|हादसा|दुर्घटना|टूट गई|pothole|khadde|gaddhe)', 2, "Road accident and traffic hazard"),
             (r'(पूरी गली में अंधेरा|रात में अंधेरा)', 2, "Public night safety and security hazard")
         ]
 
         for pattern, mod, explanation in critical_patterns:
-            if re.search(pattern, raw_text, re.IGNORECASE):
+            if re.search(pattern, combined_text, re.IGNORECASE):
                 modifier += mod
                 reasons.append(f"{explanation}: +{mod}")
                 break
