@@ -1,0 +1,38 @@
+services:
+  # Backend FastAPI Web Service
+  - type: web
+    name: shikayatai-backend
+    runtime: python
+    buildCommand: "pip install -r backend/requirements.txt && python backend/app/ml/train.py"
+    startCommand: "uvicorn backend.app.main:app --host 0.0.0.0 --port $PORT"
+    envVars:
+      - key: DATABASE_URL
+        fromDatabase:
+          name: shikayatai-db
+          property: connectionString
+      - key: SECRET_KEY
+        generateValue: true
+      - key: CORS_ORIGINS
+        value: "https://shikayatai-frontend.onrender.com"
+      - key: DEBUG
+        value: "false"
+
+  # Frontend Next.js Web Service
+  - type: web
+    name: shikayatai-frontend
+    runtime: node
+    rootDir: frontend
+    buildCommand: "npm install && npm run build"
+    startCommand: "npm run start"
+    envVars:
+      - key: NEXT_PUBLIC_API_URL
+        value: "https://shikayatai-backend.onrender.com/api"
+      - key: NODE_VERSION
+        value: "20.17.0"
+
+databases:
+  # Managed PostgreSQL Database
+  - name: shikayatai-db
+    databaseName: shikayatai_db
+    user: postgres
+    plan: free

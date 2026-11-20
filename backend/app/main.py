@@ -18,7 +18,7 @@ WORKSPACE_ROOT = Path(__file__).resolve().parent.parent.parent
 if str(WORKSPACE_ROOT) not in sys.path:
     sys.path.insert(0, str(WORKSPACE_ROOT))
 
-from backend.app.config import PROJECT_NAME, VERSION, DEBUG
+from backend.app.config import PROJECT_NAME, VERSION, DEBUG, CORS_ORIGINS
 from backend.app.api.auth import router as auth_router
 from backend.app.api.complaints import router as complaints_router
 from backend.app.api.ml import router as ml_router
@@ -34,15 +34,23 @@ app = FastAPI(
     description="ShikayatAI: Hindi Smart Complaint Classification and Resolution Analysis System"
 )
 
-# CORS configuration to allow local Next.js frontend
+# CORS configuration to allow local and deployed frontend
+allowed_origins = [
+    "http://localhost:3000",
+    "http://127.0.0.1:3000",
+    "http://localhost:3001",
+    "http://127.0.0.1:3001"
+]
+if CORS_ORIGINS:
+    for origin in CORS_ORIGINS.split(","):
+        trimmed = origin.strip()
+        if trimmed and trimmed not in allowed_origins:
+            allowed_origins.append(trimmed)
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[
-        "http://localhost:3000",
-        "http://127.0.0.1:3000",
-        "http://localhost:3001",
-        "http://127.0.0.1:3001"
-    ],
+    allow_origins=allowed_origins,
+    allow_origin_regex=r"https://.*\.vercel\.app" if not DEBUG else None,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
